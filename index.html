@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Evaluación de Mantención - Access</title>
+    <style>
+        :root { --bg: #f8fafc; --card: #ffffff; --accent: #1e40af; --text: #0f172a; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
+        .card { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { font-size: 1.4rem; color: var(--accent); margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; text-align: center; }
+        
+        label { display: block; margin-top: 15px; font-weight: 700; font-size: 0.9rem; color: #475569; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); }
+
+        /* Estilo para múltiples técnicos */
+        .tecnico-row { background: #f1f5f9; padding: 12px; border-radius: 10px; margin-top: 10px; position: relative; }
+        .btn-add { background: #e2e8f0; color: #1e40af; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; font-size: 0.8rem; }
+
+        /* Selector de 1 a 7 */
+        .eval-container { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; }
+        .eval-btn { flex: 1; padding: 10px 0; border: 1px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; }
+        .eval-btn.selected { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.05); }
+
+        .btn-submit { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 10px; width: 100%; font-size: 1rem; font-weight: bold; margin-top: 30px; cursor: pointer; box-shadow: 0 4px 6px rgba(30, 64, 175, 0.2); }
+        .btn-submit:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Evaluación Access</h2>
+        
+        <form id="mainForm">
+            <label>Fecha del Servicio</label>
+            <input type="date" id="fecha" required>
+
+            <label>Proveedor</label>
+            <select id="proveedor" required>
+                <option value="">Seleccione...</option>
+                <option value="BASH">BASH</option>
+                <option value="CASTILLO Y CARRANZA">CASTILLO Y CARRANZA</option>
+                <option value="LUREYE">LUREYE</option>
+                <option value="DONNAIRE">DONNAIRE</option>
+                <option value="TEK">TEK</option>
+                <option value="CHILEMPACK">CHILEMPACK</option>
+                <option value="HAKEN">HAKEN</option>
+                <option value="INGERACK">INGERACK</option>
+                <option value="PC PARTNERS">PC PARTNERS</option>
+                <option value="KRAF TEA">KRAF TEA</option>
+                <option value="ELEMONT">ELEMONT</option>
+                <option value="BOSQUE ALTO JARDINES">BOSQUE ALTO JARDINES</option>
+                <option value="CJ SISTEMA">CJ SISTEMA</option>
+                <option value="ALEJANDRO LABRA">ALEJANDRO LABRA</option>
+                <option value="EMMEG">EMMEG</option>
+                <option value="TIRREAU">TIRREAU</option>
+                <option value="TEKNICALL">TEKNICALL</option>
+                <option value="CIVIL WORKS">CIVIL WORKS</option>
+                <option value="ECOCAPACITA">ECOCAPACITA</option>
+                <option value="THUNDER">THUNDER</option>
+                <option value="RENE LOPEZ">RENE LOPEZ</option>
+                <option value="ENTRE RADIOS">ENTRE RADIOS</option>
+                <option value="DANSEG">DANSEG</option>
+                <option value="SIS SEGURIDAD">SIS SEGURIDAD</option>
+                <option value="ARIRIMAQ">ARIRIMAQ</option>
+                <option value="CLAUDIO MUÑOZ">CLAUDIO MUÑOZ</option>
+                <option value="MAGNA IV">MAGNA IV</option>
+                <option value="RENTAS EL RETIRO">RENTAS EL RETIRO</option>
+                <option value="FERREL">FERREL</option>
+                <option value="TRIPLEZETA">TRIPLEZETA</option>
+                <option value="BOMBEROS">BOMBEROS</option>
+                <option value="SERVELEV">SERVELEV</option>
+                <option value="OTRO">-- OTRO / NUEVO --</option>
+            </select>
+
+            <label>Maquinaria / Equipo</label>
+            <input type="text" id="equipo" placeholder="Ej: Montacargas, Grupo Electrógeno" required>
+
+            <label>Personal Técnico Externo</label>
+            <div id="listaTecnicos">
+                <div class="tecnico-row">
+                    <input type="text" placeholder="Nombre completo" class="t-nombre" required>
+                    <input type="text" placeholder="RUT" class="t-rut" required>
+                </div>
+            </div>
+            <button type="button" class="btn-add" onclick="addTecnico()">+ AGREGAR OTRO TÉCNICO</button>
+
+            <div id="evaluacionBloque">
+                </div>
+
+            <label>Comentarios del Trabajo</label>
+            <textarea id="comentarios" rows="3" placeholder="Opcional..."></textarea>
+
+            <label>Nombre de quien Evalúa (Firma)</label>
+            <input type="text" id="firma" placeholder="Su nombre" required>
+
+            <button type="submit" class="btn-submit" id="submitBtn">ENVIAR EVALUACIÓN</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYKP1NhCo5TvYjnbcJ243Tt6HdQTWx5bz0WVD--ulnCNHbc3bXTXakV9JIIfeKE6oc/exec";
+    
+    document.getElementById('fecha').valueAsDate = new Date();
+
+    const items = [
+        { id: 'p1', label: 'P1: Puntualidad en la visita' },
+        { id: 'p2', label: 'P2: Uso de EPP necesarios' },
+        { id: 'p3', label: 'P3: Disposición del personal' },
+        { id: 'p4', label: 'P4: Limpieza de zona' },
+        { id: 'p5', label: 'P5: Entrega de informe/certificados' },
+        { id: 'p6', label: 'P6: Calidad del servicio' }
+    ];
+
+    const container = document.getElementById('evaluacionBloque');
+    const notas = {};
+
+    items.forEach(item => {
+        const lbl = document.createElement('label');
+        lbl.innerText = item.label;
+        container.appendChild(lbl);
+
+        const group = document.createElement('div');
+        group.className = 'eval-container';
+        
+        for(let i=1; i<=7; i++) {
+            const btn = document.createElement('div');
+            btn.className = 'eval-btn';
+            btn.innerText = i;
+            btn.onclick = () => {
+                Array.from(group.children).forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                notas[item.id] = i;
+            };
+            group.appendChild(btn);
+        }
+        container.appendChild(group);
+    });
+
+    function addTecnico() {
+        const div = document.createElement('div');
+        div.className = 'tecnico-row';
+        div.innerHTML = `<input type="text" placeholder="Nombre" class="t-nombre"> <input type="text" placeholder="RUT" class="t-rut">`;
+        document.getElementById('listaTecnicos').appendChild(div);
+    }
+
+    document.getElementById('mainForm').onsubmit = async (e) => {
+        e.preventDefault();
+        
+        if (Object.keys(notas).length < 6) {
+            alert("Por favor, califica todos los puntos del 1 al 7.");
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = "ENVIANDO...";
+
+        const nombres = Array.from(document.querySelectorAll('.t-nombre')).map(i => i.value).filter(v => v).join(" / ");
+        const ruts = Array.from(document.querySelectorAll('.t-rut')).map(i => i.value).filter(v => v).join(" / ");
+
+        const payload = {
+            fecha: document.getElementById('fecha').value,
+            proveedor: document.getElementById('proveedor').value,
+            nombres: nombres,
+            ruts: ruts,
+            equipo: document.getElementById('equipo').value,
+            p1: notas.p1, p2: notas.p2, p3: notas.p3, p4: notas.p4, p5: notas.p5, p6: notas.p6,
+            comentarios: document.getElementById('comentarios').value,
+            firma: document.getElementById('firma').value
+        };
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            alert("✅ Evaluación enviada con éxito.");
+            location.reload();
+        } catch (err) {
+            alert("Error al enviar. Intente de nuevo.");
+            btn.disabled = false;
+            btn.innerText = "ENVIAR EVALUACIÓN";
+        }
+    };
+</script>
+</body>
+</html>
