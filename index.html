@@ -10,30 +10,24 @@
         .container { max-width: 500px; margin: auto; }
         .card { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         h2 { font-size: 1.4rem; color: var(--accent); margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; text-align: center; }
-        
         label { display: block; margin-top: 15px; font-weight: 700; font-size: 0.9rem; color: #475569; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
-        
         .tecnico-row { background: #f1f5f9; padding: 12px; border-radius: 10px; margin-top: 10px; }
         .btn-add { background: #e2e8f0; color: #1e40af; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; font-size: 0.8rem; }
-
         .eval-container { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; }
         .eval-btn { flex: 1; padding: 12px 0; border: 1px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; text-align: center; }
         .eval-btn.selected { background: var(--accent); color: white; border-color: var(--accent); }
-
         .btn-submit { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 10px; width: 100%; font-size: 1rem; font-weight: bold; margin-top: 30px; cursor: pointer; }
         .btn-submit:disabled { background: #94a3b8; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="card">
         <h2>Evaluación Access</h2>
         <form id="mainForm">
             <label>Fecha</label>
             <input type="date" id="fecha" required>
-
             <label>Proveedor</label>
             <select id="proveedor" required>
                 <option value="">Seleccione...</option>
@@ -71,10 +65,8 @@
                 <option value="SERVELEV">SERVELEV</option>
                 <option value="OTRO">OTRO / NUEVO</option>
             </select>
-
             <label>Equipo / Maquinaria</label>
             <input type="text" id="equipo" placeholder="Ej: Montacargas" required>
-
             <label>Personal Técnico</label>
             <div id="listaTecnicos">
                 <div class="tecnico-row">
@@ -83,24 +75,18 @@
                 </div>
             </div>
             <button type="button" class="btn-add" onclick="addTecnico()">+ AGREGAR OTRO TÉCNICO</button>
-
             <div id="evaluacionBloque"></div>
-
             <label>Comentarios</label>
             <textarea id="comentarios" rows="2"></textarea>
-
             <label>Firma (Nombre de quien evalúa)</label>
             <input type="text" id="firma" required>
-
             <button type="submit" class="btn-submit" id="submitBtn">ENVIAR A EXCEL</button>
         </form>
     </div>
 </div>
-
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYKP1NhCo5TvYjnbcJ243Tt6HdQTWx5bz0WVD--ulnCNHbc3bXTXakV9JIIfeKE6oc/exec";
     document.getElementById('fecha').valueAsDate = new Date();
-
     const preguntas = [
         { id: 'p1', t: 'P1: Puntualidad' },
         { id: 'p2', t: 'P2: EPP completos' },
@@ -109,10 +95,8 @@
         { id: 'p5', t: 'P5: Informe/Certificado' },
         { id: 'p6', t: 'P6: Calidad servicio' }
     ];
-
     const notas = {};
     const container = document.getElementById('evaluacionBloque');
-
     preguntas.forEach(p => {
         const lbl = document.createElement('label');
         lbl.innerText = p.t;
@@ -132,21 +116,17 @@
         }
         container.appendChild(group);
     });
-
     function addTecnico() {
         const d = document.createElement('div');
         d.className = 'tecnico-row';
         d.innerHTML = `<input type="text" placeholder="Nombre" class="t-nombre"> <input type="text" placeholder="RUT" class="t-rut">`;
         document.getElementById('listaTecnicos').appendChild(d);
     }
-
     document.getElementById('mainForm').onsubmit = async (e) => {
         e.preventDefault();
         if(Object.keys(notas).length < 6) return alert("Califica todos los puntos.");
-        
         const b = document.getElementById('submitBtn');
         b.disabled = true; b.innerText = "ENVIANDO...";
-
         const payload = {
             fecha: document.getElementById('fecha').value,
             proveedor: document.getElementById('proveedor').value,
@@ -157,10 +137,14 @@
             comentarios: document.getElementById('comentarios').value,
             firma: document.getElementById('firma').value
         };
-
-        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("✅ Enviado.");
-        location.reload();
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("✅ Enviado con éxito.");
+            location.reload();
+        } catch (e) {
+            alert("Error al enviar.");
+            b.disabled = false; b.innerText = "ENVIAR A EXCEL";
+        }
     };
 </script>
 </body>
