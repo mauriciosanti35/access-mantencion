@@ -58,17 +58,25 @@
 </div>
 
 <script>
-    // REGISTRO DEL SERVICE WORKER PARA PWA
+    // SERVICE WORKER (OK)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js');
         });
     }
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsQQ8ml08T22hkWS3MlX5jBDShviuGU7N0byhrGQEtGf7CYn5iAurCGn1YftHaNH7N/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDhKj34OE1OM0FxBQNuH2ubTGQdG--XFIhAMaN2NRVY-R0WWGijTBbNBtnmrbrOf6E/exec";
     document.getElementById('fecha').valueAsDate = new Date();
 
-    const preguntas = ['P1: Puntualidad', 'P2: EPP completos', 'P3: Disposición', 'P4: Zona limpia', 'P5: Informe/Certificado', 'P6: Calidad servicio'];
+    const preguntas = [
+        'P1: Puntualidad',
+        'P2: EPP completos',
+        'P3: Disposición',
+        'P4: Zona limpia',
+        'P5: Informe/Certificado',
+        'P6: Calidad servicio'
+    ];
+
     const notas = {};
     const container = document.getElementById('evaluacionBloque');
 
@@ -77,34 +85,48 @@
         const lbl = document.createElement('label');
         lbl.innerText = t;
         container.appendChild(lbl);
+
         const group = document.createElement('div');
         group.className = 'eval-container';
+
         for(let i=1; i<=7; i++) {
             const b = document.createElement('div');
             b.className = 'eval-btn';
             b.innerText = i;
+
             b.onclick = () => {
                 Array.from(group.children).forEach(x => x.classList.remove('selected'));
                 b.classList.add('selected');
                 notas[id] = i;
             };
+
             group.appendChild(b);
         }
+
         container.appendChild(group);
     });
 
     function addTecnico() {
         const d = document.createElement('div');
         d.className = 'tecnico-row';
-        d.innerHTML = `<input type="text" placeholder="Nombre" class="t-nombre"> <input type="text" placeholder="RUT" class="t-rut">`;
+        d.innerHTML = `
+            <input type="text" placeholder="Nombre" class="t-nombre" required>
+            <input type="text" placeholder="RUT" class="t-rut" required>
+        `;
         document.getElementById('listaTecnicos').appendChild(d);
     }
 
     document.getElementById('mainForm').onsubmit = async (e) => {
         e.preventDefault();
-        if(Object.keys(notas).length < 6) return alert("Califica todos los puntos.");
+
+        if(Object.keys(notas).length < 6) {
+            alert("Califica todos los puntos.");
+            return;
+        }
+
         const b = document.getElementById('submitBtn');
-        b.disabled = true; b.innerText = "ENVIANDO...";
+        b.disabled = true;
+        b.innerText = "ENVIANDO...";
 
         const payload = {
             fecha: document.getElementById('fecha').value,
@@ -112,20 +134,36 @@
             nombres: Array.from(document.querySelectorAll('.t-nombre')).map(i => i.value).join(" / "),
             ruts: Array.from(document.querySelectorAll('.t-rut')).map(i => i.value).join(" / "),
             equipo: document.getElementById('equipo').value,
-            p1: notas.p1, p2: notas.p2, p3: notas.p3, p4: notas.p4, p5: notas.p5, p6: notas.p6,
+            p1: notas.p1,
+            p2: notas.p2,
+            p3: notas.p3,
+            p4: notas.p4,
+            p5: notas.p5,
+            p6: notas.p6,
             comentarios: document.getElementById('comentarios').value,
             firma: document.getElementById('firma').value
         };
 
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const text = await res.text(); // 👈 ahora puedes ver respuesta
+            console.log("Respuesta script:", text);
+
             alert("✅ Enviado con éxito.");
             location.reload();
+
         } catch (err) {
-            alert("Error al enviar.");
-            b.disabled = false; b.innerText = "ENVIAR A EXCEL";
+            console.error(err);
+            alert("❌ Error al enviar.");
+            b.disabled = false;
+            b.innerText = "ENVIAR A EXCEL";
         }
     };
 </script>
-</body>
-</html>
