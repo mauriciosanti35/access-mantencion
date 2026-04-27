@@ -1,32 +1,167 @@
-function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = JSON.parse(e.postData.contents);
-    
-    // Cálculo de promedio
-    var p1 = Number(data.p1) || 0;
-    var p2 = Number(data.p2) || 0;
-    var p3 = Number(data.p3) || 0;
-    var p4 = Number(data.p4) || 0;
-    var p5 = Number(data.p5) || 0;
-    var p6 = Number(data.p6) || 0;
-    var promedio = ((p1 + p2 + p3 + p4 + p5 + p6) / 6).toFixed(1);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Evaluación de Mantención - Access</title>
+    <style>
+        :root { --bg: #f8fafc; --card: #ffffff; --accent: #1e40af; --text: #0f172a; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
+        .card { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        h2 { font-size: 1.4rem; color: var(--accent); margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; text-align: center; }
+        
+        label { display: block; margin-top: 15px; font-weight: 700; font-size: 0.9rem; color: #475569; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        
+        .tecnico-row { background: #f1f5f9; padding: 12px; border-radius: 10px; margin-top: 10px; }
+        .btn-add { background: #e2e8f0; color: #1e40af; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; font-size: 0.8rem; }
 
-    // Guardar en el Excel (Orden de columnas: Fecha, Prov, Nombres, Ruts, Equipo, P1..P6, Prom, Coment, Firma)
-    sheet.appendRow([
-      data.fecha,
-      data.proveedor,
-      data.nombres,
-      data.ruts,
-      data.equipo,
-      p1, p2, p3, p4, p5, p6,
-      promedio,
-      data.comentarios,
-      data.firma
-    ]);
+        .eval-container { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; }
+        .eval-btn { flex: 1; padding: 12px 0; border: 1px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; text-align: center; }
+        .eval-btn.selected { background: var(--accent); color: white; border-color: var(--accent); }
 
-    return ContentService.createTextOutput("OK").setMimeType(ContentService.MimeType.TEXT);
-  } catch (err) {
-    return ContentService.createTextOutput("Error: " + err.toString());
-  }
-}
+        .btn-submit { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 10px; width: 100%; font-size: 1rem; font-weight: bold; margin-top: 30px; cursor: pointer; }
+        .btn-submit:disabled { background: #94a3b8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Evaluación Access</h2>
+        <form id="mainForm">
+            <label>Fecha</label>
+            <input type="date" id="fecha" required>
+
+            <label>Proveedor</label>
+            <select id="proveedor" required>
+                <option value="">Seleccione...</option>
+                <option value="BASH">BASH</option>
+                <option value="CASTILLO Y CARRANZA">CASTILLO Y CARRANZA</option>
+                <option value="LUREYE">LUREYE</option>
+                <option value="DONNAIRE">DONNAIRE</option>
+                <option value="TEK">TEK</option>
+                <option value="CHILEMPACK">CHILEMPACK</option>
+                <option value="HAKEN">HAKEN</option>
+                <option value="INGERACK">INGERACK</option>
+                <option value="PC PARTNERS">PC PARTNERS</option>
+                <option value="KRAF TEA">KRAF TEA</option>
+                <option value="ELEMONT">ELEMONT</option>
+                <option value="BOSQUE ALTO JARDINES">BOSQUE ALTO JARDINES</option>
+                <option value="CJ SISTEMA">CJ SISTEMA</option>
+                <option value="ALEJANDRO LABRA">ALEJANDRO LABRA</option>
+                <option value="EMMEG">EMMEG</option>
+                <option value="TIRREAU">TIRREAU</option>
+                <option value="TEKNICALL">TEKNICALL</option>
+                <option value="CIVIL WORKS">CIVIL WORKS</option>
+                <option value="ECOCAPACITA">ECOCAPACITA</option>
+                <option value="THUNDER">THUNDER</option>
+                <option value="RENE LOPEZ">RENE LOPEZ</option>
+                <option value="ENTRE RADIOS">ENTRE RADIOS</option>
+                <option value="DANSEG">DANSEG</option>
+                <option value="SIS SEGURIDAD">SIS SEGURIDAD</option>
+                <option value="ARIRIMAQ">ARIRIMAQ</option>
+                <option value="CLAUDIO MUÑOZ">CLAUDIO MUÑOZ</option>
+                <option value="MAGNA IV">MAGNA IV</option>
+                <option value="RENTAS EL RETIRO">RENTAS EL RETIRO</option>
+                <option value="FERREL">FERREL</option>
+                <option value="TRIPLEZETA">TRIPLEZETA</option>
+                <option value="BOMBEROS">BOMBEROS</option>
+                <option value="SERVELEV">SERVELEV</option>
+                <option value="OTRO">OTRO / NUEVO</option>
+            </select>
+
+            <label>Equipo / Maquinaria</label>
+            <input type="text" id="equipo" placeholder="Ej: Montacargas" required>
+
+            <label>Personal Técnico</label>
+            <div id="listaTecnicos">
+                <div class="tecnico-row">
+                    <input type="text" placeholder="Nombre" class="t-nombre" required>
+                    <input type="text" placeholder="RUT" class="t-rut" required>
+                </div>
+            </div>
+            <button type="button" class="btn-add" onclick="addTecnico()">+ AGREGAR OTRO TÉCNICO</button>
+
+            <div id="evaluacionBloque"></div>
+
+            <label>Comentarios</label>
+            <textarea id="comentarios" rows="2"></textarea>
+
+            <label>Firma (Nombre de quien evalúa)</label>
+            <input type="text" id="firma" required>
+
+            <button type="submit" class="btn-submit" id="submitBtn">ENVIAR A EXCEL</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYKP1NhCo5TvYjnbcJ243Tt6HdQTWx5bz0WVD--ulnCNHbc3bXTXakV9JIIfeKE6oc/exec";
+    document.getElementById('fecha').valueAsDate = new Date();
+
+    const preguntas = [
+        { id: 'p1', t: 'P1: Puntualidad' },
+        { id: 'p2', t: 'P2: EPP completos' },
+        { id: 'p3', t: 'P3: Disposición' },
+        { id: 'p4', t: 'P4: Zona limpia' },
+        { id: 'p5', t: 'P5: Informe/Certificado' },
+        { id: 'p6', t: 'P6: Calidad servicio' }
+    ];
+
+    const notas = {};
+    const container = document.getElementById('evaluacionBloque');
+
+    preguntas.forEach(p => {
+        const lbl = document.createElement('label');
+        lbl.innerText = p.t;
+        container.appendChild(lbl);
+        const group = document.createElement('div');
+        group.className = 'eval-container';
+        for(let i=1; i<=7; i++) {
+            const b = document.createElement('div');
+            b.className = 'eval-btn';
+            b.innerText = i;
+            b.onclick = () => {
+                Array.from(group.children).forEach(x => x.classList.remove('selected'));
+                b.classList.add('selected');
+                notas[p.id] = i;
+            };
+            group.appendChild(b);
+        }
+        container.appendChild(group);
+    });
+
+    function addTecnico() {
+        const d = document.createElement('div');
+        d.className = 'tecnico-row';
+        d.innerHTML = `<input type="text" placeholder="Nombre" class="t-nombre"> <input type="text" placeholder="RUT" class="t-rut">`;
+        document.getElementById('listaTecnicos').appendChild(d);
+    }
+
+    document.getElementById('mainForm').onsubmit = async (e) => {
+        e.preventDefault();
+        if(Object.keys(notas).length < 6) return alert("Califica todos los puntos.");
+        
+        const b = document.getElementById('submitBtn');
+        b.disabled = true; b.innerText = "ENVIANDO...";
+
+        const payload = {
+            fecha: document.getElementById('fecha').value,
+            proveedor: document.getElementById('proveedor').value,
+            nombres: Array.from(document.querySelectorAll('.t-nombre')).map(i => i.value).join(" / "),
+            ruts: Array.from(document.querySelectorAll('.t-rut')).map(i => i.value).join(" / "),
+            equipo: document.getElementById('equipo').value,
+            p1: notas.p1, p2: notas.p2, p3: notas.p3, p4: notas.p4, p5: notas.p5, p6: notas.p6,
+            comentarios: document.getElementById('comentarios').value,
+            firma: document.getElementById('firma').value
+        };
+
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert("✅ Enviado.");
+        location.reload();
+    };
+</script>
+</body>
+</html>
