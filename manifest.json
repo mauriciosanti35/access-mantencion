@@ -1,6 +1,7 @@
 {
   "name": "Access Mantención",
   "short_name": "AccessApp",
+  "description": "Sistema de registro de evaluaciones para proveedores de mantenimiento.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
@@ -10,7 +11,8 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1063/1063376.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
