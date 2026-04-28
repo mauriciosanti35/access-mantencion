@@ -24,26 +24,55 @@
 </style>
 </head>
 <body>
- 
+
 <div class="container">
 <div class="card">
 <h2>Evaluación Access</h2>
 <form id="mainForm">
 <label>Fecha</label>
 <input type="date" id="fecha" required>
- 
+
             <label>Proveedor</label>
 <select id="proveedor" required>
 <option value="">Seleccione...</option>
+<option value="ALEJANDRO LABRA">ALEJANDRO LABRA</option>
+<option value="ARIRIMAQ">ARIRIMAQ</option>
 <option value="BASH">BASH</option>
+<option value="BOMBEROS">BOMBEROS</option>
+<option value="BOSQUE ALTO JARDINES">BOSQUE ALTO JARDINES</option>
+<option value="CASTILLO Y CARRANZA">CASTILLO Y CARRANZA</option>
+<option value="CHILEMPACK">CHILEMPACK</option>
+<option value="CIVIL WORKS">CIVIL WORKS</option>
+<option value="CJ SISTEMA">CJ SISTEMA</option>
+<option value="CLAUDIO MUÑOZ">CLAUDIO MUÑOZ</option>
+<option value="DANSEG">DANSEG</option>
+<option value="DONNAIRE">DONNAIRE</option>
+<option value="ECOCAPACITA">ECOCAPACITA</option>
 <option value="ELEMONT">ELEMONT</option>
+<option value="EMMEG">EMMEG</option>
+<option value="ENTRE RADIOS">ENTRE RADIOS</option>
+<option value="FERREL">FERREL</option>
+<option value="HAKEN">HAKEN</option>
+<option value="INGERACK">INGERACK</option>
+<option value="KRAF TEA">KRAF TEA</option>
 <option value="LUREYE">LUREYE</option>
+<option value="MAGNA IV">MAGNA IV</option>
+<option value="PC PARTNERS">PC PARTNERS</option>
+<option value="RENE LOPEZ">RENE LOPEZ</option>
+<option value="RENTAS EL RETIRO">RENTAS EL RETIRO</option>
+<option value="SERVELEV">SERVELEV</option>
+<option value="SIS SEGURIDAD">SIS SEGURIDAD</option>
+<option value="TEK">TEK</option>
+<option value="TEKNICALL">TEKNICALL</option>
+<option value="THUNDER">THUNDER</option>
+<option value="TIRREAU">TIRREAU</option>
+<option value="TRIPLEZETA">TRIPLEZETA</option>
 <option value="OTRO">OTRO / NUEVO</option>
 </select>
- 
+
             <label>Equipo / Maquinaria</label>
 <input type="text" id="equipo" placeholder="Ej: Ascensor Central" required>
- 
+
             <label>Personal Técnico</label>
 <div id="listaTecnicos">
 <div class="tecnico-row">
@@ -52,34 +81,31 @@
 </div>
 </div>
 <button type="button" class="btn-add" onclick="addTecnico()">+ AGREGAR OTRO TÉCNICO</button>
- 
+
             <div id="evaluacionBloque"></div>
- 
+
             <label>Comentarios</label>
 <textarea id="comentarios" rows="3" placeholder="Observaciones adicionales..."></textarea>
- 
+
             <label>Firma (Nombre)</label>
 <input type="text" id="firma" placeholder="Quien evalúa" required>
- 
+
             <button type="submit" class="btn-submit" id="submitBtn">ENVIAR A EXCEL</button>
 </form>
 </div>
 </div>
- 
+
 <script>
-    // Registro del Service Worker para PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').catch(err => console.log("SW error", err));
         });
     }
- 
-    // URL de tu Script de Google (Actualizada con la que me diste)
+
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyT0AsUptxrTPsbH5JMrSHowysDEzps4_nUfWG_eewCDLFplgBcZH9pst1u_rYgbT3/exec";
- 
-    // Establecer fecha de hoy por defecto
+
     document.getElementById('fecha').valueAsDate = new Date();
- 
+
     const preguntas = [
         { id: 'p1', texto: 'P1: Puntualidad' },
         { id: 'p2', texto: 'P2: EPP completos' },
@@ -88,19 +114,18 @@
         { id: 'p5', texto: 'P5: Informe/Certificado' },
         { id: 'p6', texto: 'P6: Calidad servicio' }
     ];
- 
+
     const notas = {};
     const container = document.getElementById('evaluacionBloque');
- 
-    // Generar botones de evaluación 1 al 7
+
     preguntas.forEach((preg) => {
         const lbl = document.createElement('label');
         lbl.innerText = preg.texto;
         container.appendChild(lbl);
- 
+
         const group = document.createElement('div');
         group.className = 'eval-container';
- 
+
         for(let i=1; i<=7; i++) {
             const b = document.createElement('div');
             b.className = 'eval-btn';
@@ -114,7 +139,7 @@
         }
         container.appendChild(group);
     });
- 
+
     function addTecnico() {
         const d = document.createElement('div');
         d.className = 'tecnico-row';
@@ -124,19 +149,18 @@
         `;
         document.getElementById('listaTecnicos').appendChild(d);
     }
- 
+
     document.getElementById('mainForm').onsubmit = async (e) => {
         e.preventDefault();
- 
-        // Validar que todas las preguntas tengan nota
+
         if(Object.keys(notas).length < 6) {
             return alert("Por favor, califica todos los puntos del 1 al 7.");
         }
- 
+
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.innerText = "ENVIANDO...";
- 
+
         const payload = {
             fecha: document.getElementById('fecha').value,
             proveedor: document.getElementById('proveedor').value,
@@ -152,19 +176,18 @@
             comentarios: document.getElementById('comentarios').value,
             firma: document.getElementById('firma').value
         };
- 
+
         try {
-            // Usamos la lógica de JSON igual que en tu proyecto de buses exitoso
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
- 
+
             alert("✅ Evaluación enviada con éxito.");
             location.reload();
- 
+
         } catch (err) {
             console.error(err);
             alert("Ocurrió un error al enviar los datos.");
@@ -173,6 +196,6 @@
         }
     };
 </script>
- 
+
 </body>
 </html>
